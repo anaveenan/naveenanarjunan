@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/naveenanarjunan/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Using Simulation to Estimate the Power of an A/B experiment | My Data Science blog</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Using Simulation to Estimate the Power of an A/B experiment" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial on estimating power of an A/B experiment" />
+<meta property="og:description" content="A tutorial on estimating power of an A/B experiment" />
+<link rel="canonical" href="https://anaveenan.github.io/naveenanarjunan/fastpages/jupyter/2020/02/14/power-analyis.html" />
+<meta property="og:url" content="https://anaveenan.github.io/naveenanarjunan/fastpages/jupyter/2020/02/14/power-analyis.html" />
+<meta property="og:site_name" content="My Data Science blog" />
+<meta property="og:image" content="https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-02-14T00:00:00-06:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/fastpages/jupyter/2020/02/14/power-analyis.html"},"description":"A tutorial on estimating power of an A/B experiment","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/fastpages/jupyter/2020/02/14/power-analyis.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Using Simulation to Estimate the Power of an A/B experiment","dateModified":"2020-02-14T00:00:00-06:00","datePublished":"2020-02-14T00:00:00-06:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/naveenanarjunan/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://anaveenan.github.io/naveenanarjunan/feed.xml" title="My Data Science blog" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/naveenanarjunan/">My Data Science blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/naveenanarjunan/about/">About Me</a><a class="page-link" href="/naveenanarjunan/search/">Search</a><a class="page-link" href="/naveenanarjunan/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Using Simulation to Estimate the Power of an A/B experiment</h1><p class="page-description">A tutorial on estimating power of an A/B experiment</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-02-14T00:00:00-06:00" itemprop="datePublished">
+        Feb 14, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      3 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/naveenanarjunan/categories/#fastpages">fastpages</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/naveenanarjunan/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+<a href="https://github.com/anaveenan/naveenanarjunan/tree/master/_notebooks/2020-02-14-power-analyis.ipynb" role="button">
+    <img class="notebook-badge-image" src="https://img.shields.io/static/v1?label=&message=View%20On%20GitHub&color=586069&logo=github&labelColor=2f363d">
+</a>
+</div><div class="px-2">
+    <a href="https://colab.research.google.com/github/anaveenan/naveenanarjunan/blob/master/_notebooks/2020-02-14-power-analyis.ipynb">
+        <img class="notebook-badge-image" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-02-14-power-analyis.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>Power of an experiment measures the ability of the experiment to detect a specific alternate hypothesis. For example, an e-commerce company is trying to increase the time users spend on the website by changing the design of the website. They plan to use the well-known two-sample t-test. Power helps in answering the question: will the t-test be able to detect a difference in mean time spend (if it exists) by rejecting the null hypothesis?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Lets state the hypothesis</p>
+<p><strong>Null Hypothesis H<sub>0</sub></strong>: New design has no effect on the time users spend on the website<br />
+<strong>Alternate Hypothesis H<sub>a</sub></strong>: New design impacts the time users spend on the website</p>
+<p>When an A/B experiment is run to measure the impact of the website redesign, 
+we want to ensure that the experiment has at least 80% power. The following parameters impact the power of the experiment:</p>
+<p><strong>1. Sample size(n):</strong> Larger the sample size, smaller the standard error becomes; and makes sampling distribution smaller. Increasing the sample size, increases the power of the experiment<br />
+<strong>2. Effect size(𝛿):</strong> Difference between the means sampling distribution of null and alternative hypothesis. Smaller the effect size, need more samples to detect an effect at predefined power<br />
+<strong>3. Alpha(𝛼):</strong> Significance value is typically set at 0.05; this is the cut off at which we accept or reject our null hypothesis. Making alpha smaller requires more samples to detect an effect at predefined power<br />
+<strong>4. Beta(β):</strong> Power is defined as 1-β</p>
+<p>Why power analysis is done to determine sample size before running an experiment?</p>
+<ol>
+<li>Running experiments is expensive and time consuming  </li>
+<li>Increases the chance of finding significant effect  </li>
+<li>Increases the chance of replicating an effect detected in an experiment  </li>
+</ol>
+<p>For example, the time users spend currently on the website is normally distributed with mean 2 minutes and standard deviation 1 minute. The product manager wants to design an experiment to understand if the redesigned website helps in increasing the time spent on the website.</p>
+<p>The experiment should be able to detect a minimum of 5% change in time spent on the website. For a test like this, an exact solution is available to estimate sample size since sampling distribution is known. Here we will use the simulation method to estimate the sample and validate the same using exact method.</p>
+<p>The following steps estimate the power of two-sample t-test:</p>
+<ol>
+<li>Simulate data for the model under null 𝒩(2,1) and alternate hypothesis 𝒩(2+𝛿,1)  </li>
+<li>Perform t-test on the sample and record whether the t-test rejects the null hypothesis  </li>
+<li>Run the simulation multiple number of times and count the number of times the t-test rejects the null hypothesis.  </li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Code-to-compute-power-of-experiment-for-a-specified-sample-size,-effect-size-and-significance-level:">Code to compute power of experiment for a specified sample size, effect size and significance level:<a class="anchor-link" href="#Code-to-compute-power-of-experiment-for-a-specified-sample-size,-effect-size-and-significance-level:"> </a></h3><p>Power of the experiment is 58.8% with sample size of 1000</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="c1"># Initialize delta(minimum lift the product manager expect), control_mean, control_sd</span>
+<span class="n">delta</span><span class="o">=</span><span class="mf">0.05</span>
+<span class="n">control_mean</span><span class="o">=</span><span class="mi">2</span>
+<span class="n">control_sd</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span>
+<span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="c1">#significance of the experiment</span>
+<span class="n">n_sim</span><span class="o">=</span><span class="mi">1000</span><span class="c1">#Total number of samples to simulate</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span><span class="c1">#set seed</span>
+<span class="k">def</span> <span class="nf">simulate_data</span><span class="p">(</span><span class="n">control_mean</span><span class="p">,</span><span class="n">control_sd</span><span class="p">,</span><span class="n">sample_size</span><span class="p">,</span><span class="n">n_sim</span><span class="p">):</span>
+    <span class="c1"># Simulate the time spend under null hypothesis</span>
+    <span class="n">control_time_spent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">control_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">control_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span><span class="n">n_sim</span><span class="p">))</span>
+    <span class="c1"># Simulate the time spend under alternate hypothesis</span>
+    <span class="n">treatment_time_spent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">control_mean</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">delta</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="n">control_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span><span class="n">n_sim</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">control_time_spent</span><span class="p">,</span><span class="n">treatment_time_spent</span>
+<span class="c1"># Run the t-test and get the p_value</span>
+<span class="n">control_time_spent</span><span class="p">,</span> <span class="n">treatment_time_spent</span><span class="o">=</span><span class="n">simulate_data</span><span class="p">(</span><span class="n">control_mean</span><span class="p">,</span><span class="n">control_sd</span><span class="p">,</span><span class="n">sample_size</span><span class="p">,</span><span class="n">n_sim</span><span class="p">)</span>
+<span class="n">t_stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">control_time_spent</span><span class="p">,</span> <span class="n">treatment_time_spent</span><span class="p">)</span>
+<span class="n">power</span><span class="o">=</span><span class="p">(</span><span class="n">p_value</span><span class="o">&lt;</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">n_sim</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Power of the experiment </span><span class="si">{:.1%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">power</span><span class="p">))</span>
+<span class="c1">#Power of the experiment 58.8%</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Power of the experiment 58.8%
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Code-to-compute-sample-size-required-to-reach-80%-power-for-specified-effect-size-and-significance-level:">Code to compute sample size required to reach 80% power for specified effect size and significance level:<a class="anchor-link" href="#Code-to-compute-sample-size-required-to-reach-80%-power-for-specified-effect-size-and-significance-level:"> </a></h3><p>Based on simulation methods we need 1560 users to reach power of 80% and this closely matches with sample size estimated using exact method</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#increment sample size till required power is reached </span>
+<span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">control_time_spent</span><span class="p">,</span> <span class="n">treatment_time_spent</span><span class="o">=</span><span class="n">simulate_data</span><span class="p">(</span><span class="n">control_mean</span><span class="p">,</span><span class="n">control_sd</span><span class="p">,</span><span class="n">sample_size</span><span class="p">,</span><span class="n">n_sim</span><span class="p">)</span>
+    <span class="n">t_stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">control_time_spent</span><span class="p">,</span> <span class="n">treatment_time_spent</span><span class="p">)</span>
+    <span class="n">power</span><span class="o">=</span><span class="p">(</span><span class="n">p_value</span><span class="o">&lt;</span><span class="n">alpha</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">n_sim</span>
+    <span class="k">if</span> <span class="n">power</span><span class="o">&gt;.</span><span class="mi">80</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Minimum sample size required to reach significance </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sample_size</span><span class="p">))</span>
+        <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sample_size</span><span class="o">+=</span><span class="mi">10</span>
+<span class="c1">#Minimum sample size required to reach significance 1560</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Minimum sample size required to reach significance 1560
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Code-to-compute-sample-size-using-exact-method:">Code to compute sample size using exact method:<a class="anchor-link" href="#Code-to-compute-sample-size-using-exact-method:"> </a></h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Analtyical solution to compute sample size</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats.power</span> <span class="kn">import</span> <span class="n">tt_ind_solve_power</span>
+
+<span class="n">treat_mean</span><span class="o">=</span><span class="n">control_mean</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">delta</span><span class="p">)</span>
+<span class="n">mean_diff</span><span class="o">=</span><span class="n">treat_mean</span><span class="o">-</span><span class="n">control_mean</span>
+
+<span class="n">cohen_d</span><span class="o">=</span><span class="n">mean_diff</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">control_sd</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">control_sd</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">tt_ind_solve_power</span><span class="p">(</span><span class="n">effect_size</span><span class="o">=</span><span class="n">cohen_d</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Minimum sample size required to reach significance: </span><span class="si">{:.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Minimum sample size required to reach significance: 1571
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion"> </a></h3><p>This article explained how simulation can be used to estimate power of an A/B experiment when a closed form solution doesn’t exist.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="anaveenan/naveenanarjunan"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/naveenanarjunan/fastpages/jupyter/2020/02/14/power-analyis.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/naveenanarjunan/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">My Data Science blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">My Data Science blog</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/anaveenan"><svg class="social svg-icon"><use xlink:href="/naveenanarjunan/assets/minima-social-icons.svg#github"></use></svg> <span class="username">anaveenan</span></a></li><li><a href="https://www.twitter.com/NaveenanA"><svg class="social svg-icon"><use xlink:href="/naveenanarjunan/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">NaveenanA</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
