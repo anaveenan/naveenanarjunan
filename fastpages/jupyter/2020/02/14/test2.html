@@ -177,14 +177,18 @@
 <a class="anchor" href="#Front-Matter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Front Matter<a class="anchor-link" href="#Front-Matter"> </a>
 </h2>
 <p>Lets state the hypothesis</p>
-<p><strong><em>Null Hypothesis $H_o$</em></strong>: New design has no effect on the time users spend on the website<br>
-<strong><em>Alternate Hypothesis $H_a$</em></strong>: New design impacts the time users spend on the website</p>
-<p>When an A/B experiment is run to measure the impact of the website redesign, we want to ensure that the experiment has at least 80% power. The following parameters impact the power of the experiment:
-Sample size(n): Larger the sample size, smaller the standard error becomes; and makes sampling distribution smaller. Increasing the sample size, increases the power of the experiment
-Effect size(𝛿): Difference between the means sampling distribution of null and alternative hypothesis. Smaller the effect size, need more samples to detect an effect at predefined power
-Alpha(𝛼): Significance value is typically set at 0.05; this is the cut off at which we accept or reject our null hypothesis. Making alpha smaller requires more samples to detect an effect at predefined power
-Beta(β): Power is defined as 1-β
-Why power analysis is done to determine sample size before running an experiment?
+<p><strong>Null Hypothesis $H_{o}$</strong>: New design has no effect on the time users spend on the website<br>
+<strong>Alternate Hypothesis $H_{a}$</strong>: New design impacts the time users spend on the website</p>
+<p>H<sub>0</sub></p>
+<p>When an A/B experiment is run to measure the impact of the website redesign, 
+we want to ensure that the experiment has at least 80% power. The following parameters impact the power of the experiment:</p>
+<p><strong>1. Sample size(n):</strong> Larger the sample size, smaller the standard error becomes; and makes sampling distribution smaller. Increasing the sample size, increases the power of the experiment</p>
+<ol>
+<li>Effect size(𝛿): Difference between the means sampling distribution of null and alternative hypothesis. Smaller the effect size, need more samples to detect an effect at predefined power  </li>
+<li>Alpha(𝛼): Significance value is typically set at 0.05; this is the cut off at which we accept or reject our null hypothesis. Making alpha smaller requires more samples to detect an effect at predefined power  </li>
+<li>Beta(β): Power is defined as 1-β  </li>
+</ol>
+<p>Why power analysis is done to determine sample size before running an experiment?
 Running experiments is expensive and time consuming
 Increases the chance of finding significant effect
 Increases the chance of replicating an effect detected in an experiment
