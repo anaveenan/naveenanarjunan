@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/naveenanarjunan/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Audience Splitting in A/B Experiments | My Data Science blog</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Audience Splitting in A/B Experiments" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial of how to split audience using hashing." />
+<meta property="og:description" content="A tutorial of how to split audience using hashing." />
+<link rel="canonical" href="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html" />
+<meta property="og:url" content="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html" />
+<meta property="og:site_name" content="My Data Science blog" />
+<meta property="og:image" content="https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-01-15T00:00:00-06:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html"},"description":"A tutorial of how to split audience using hashing.","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Audience Splitting in A/B Experiments","dateModified":"2020-01-15T00:00:00-06:00","datePublished":"2020-01-15T00:00:00-06:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/naveenanarjunan/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://anaveenan.github.io/naveenanarjunan/feed.xml" title="My Data Science blog" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/naveenanarjunan/">My Data Science blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/naveenanarjunan/about/">About Me</a><a class="page-link" href="/naveenanarjunan/search/">Search</a><a class="page-link" href="/naveenanarjunan/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Audience Splitting in A/B Experiments</h1><p class="page-description">A tutorial of how to split audience using hashing.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-01-15T00:00:00-06:00" itemprop="datePublished">
+        Jan 15, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/naveenanarjunan/categories/#altair">altair</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/naveenanarjunan/categories/#python">python</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+<a href="https://github.com/anaveenan/naveenanarjunan/tree/master/_notebooks/2020-01-15-audience-hashing.ipynb" role="button">
+    <img class="notebook-badge-image" src="https://img.shields.io/static/v1?label=&message=View%20On%20GitHub&color=586069&logo=github&labelColor=2f363d">
+</a>
+</div><div class="px-2">
+    <a href="https://colab.research.google.com/github/anaveenan/naveenanarjunan/blob/master/_notebooks/2020-01-15-audience-hashing.ipynb">
+        <img class="notebook-badge-image" src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-01-15-audience-hashing.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>One key element in running a A/B experiment is splitting of audience based on the unit of diversion. Most of the experiment platforms does the splitting of audience for us. But there are situation in which analyst need to run an A/B experiment and splitting of audience need to performed in SQL. Also, we need the audience split to perform post-hoc analysis of the experiment. In this blog, I walk through how to do this in spark and Hive using an example .</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Data-Preparation">Data Preparation<a class="anchor-link" href="#Data-Preparation"> </a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ol>
+<li>Lets create a spark session in local.   </li>
+<li>Add 100,000 customers with gender information and add uuid column to the dataframe to uniquely identify a user.  </li>
+<li>Convert pandas dataframe to a spark dataframe </li>
+<li>Register the spark dataframe as "user_table" to be accessed in Hive</li>
+</ol>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pyspark</span> 
+<span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">from</span> <span class="nn">vega_datasets</span> <span class="kn">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span> \
+          <span class="o">.</span><span class="n">builder</span> \
+          <span class="o">.</span><span class="n">enableHiveSupport</span><span class="p">()</span> \
+          <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+
+<span class="n">customers</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100000</span><span class="p">),</span>
+                      <span class="s1">&#39;gender&#39;</span><span class="p">:[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="s1">&#39;f&#39;</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.55</span><span class="p">,</span><span class="mf">0.45</span><span class="p">])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100000</span><span class="p">)]})</span>
+         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">user_uuid</span><span class="o">=</span><span class="p">[</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100000</span><span class="p">)])</span>
+        <span class="p">)</span>
+
+<span class="n">customers</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user</th>
+      <th>gender</th>
+      <th>user_uuid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>m</td>
+      <td>817be0d1-067c-41b8-86bc-ef6ab335ff46</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>m</td>
+      <td>afbac2c3-c2ae-413d-9d00-712da8ce5eb2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>m</td>
+      <td>c8c990fa-7884-4c1d-89e2-d5e8af0a33fe</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>m</td>
+      <td>43fd874f-4644-405a-ae5e-44c01c7d3871</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>f</td>
+      <td>9d78651b-d55f-4d7b-bce7-5d036b95ac6c</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sdf</span><span class="o">=</span><span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">customers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+<span class="n">sdf</span><span class="o">.</span><span class="n">createOrReplaceTempView</span><span class="p">(</span><span class="s2">&quot;user_table&quot;</span><span class="p">)</span> 
+<span class="n">sdf</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user</th>
+      <th>gender</th>
+      <th>user_uuid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>f</td>
+      <td>12d288b0-91e3-471c-849f-38b6e3961a88</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>m</td>
+      <td>b1ea28f2-35fd-4334-92f9-e19fb3cfc924</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>f</td>
+      <td>e636cd3d-6182-4ee0-98d9-bed9350c996d</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>f</td>
+      <td>5f053ff3-5965-4114-808e-636e83c22647</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>f</td>
+      <td>f32af45d-36ff-4996-9704-99f9143a03de</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Audience-splitting">Audience splitting<a class="anchor-link" href="#Audience-splitting"> </a></h3><blockquote><p>Cool hashing trick to perform audience splitting</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ol>
+<li>Select the unit of diversion key : user_uuid in our case (or the ID field we want to split on).  </li>
+<li>And a salt, unique value to identify our experiment.  </li>
+<li>Concatenate car_uuid with salt selected.  </li>
+<li>Apply a hashing algorithm like md5 hash to split audience into treatment and control </li>
+</ol>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;select </span>
+<span class="s2">user_uuid,</span>
+<span class="s2">if(</span>
+<span class="s2">   conv(</span>
+<span class="s2">      substr(</span>
+<span class="s2">          md5(concat(user_uuid, &#39;-&#39;,&#39;new_widget&#39;)),</span>
+<span class="s2">          1, 6),</span>
+<span class="s2">      16,10)/conv(&#39;ffffff&#39;,16,10) &gt; 0.50, &#39;treatment&#39;, &#39;control&#39;) as treatment</span>
+<span class="s2">,gender</span>
+<span class="s2">from user_table</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">df_audience</span><span class="o">=</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Validation-of-assignment">Validation of assignment<a class="anchor-link" href="#Validation-of-assignment"> </a></h3><blockquote><p>Chi-Square test of indepence is our friend</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Lets visualize the split and looks like assignment is 50-50. But how do we validate this with statistically rigor ?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">df_audience</span>
+ <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;treatment&#39;</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">users</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;user_uuid&#39;</span><span class="p">,</span><span class="s1">&#39;count&#39;</span><span class="p">))</span>
+ <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+ <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">percent_users</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>treatment</th>
+      <th>users</th>
+      <th>percent_users</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>control</td>
+      <td>50180</td>
+      <td>0.5018</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>treatment</td>
+      <td>49820</td>
+      <td>0.4982</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One way to check this is if assignment of gender is random across treatment and control. This can be translated in to a chi square test with the following hypothesis:</p>
+<p><strong>Null Hypothesis H<sub>0</sub></strong>: Gender is independent of treatment assignment<br />
+  <strong>Alternate Hypothesis H<sub>a</sub></strong>: Gender is not independent of treatment assignment</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's run an chi-square test. P-value of 0.14 indicates we can't reject the null hypothesis</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">chi2</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">sc</span><span class="o">.</span><span class="n">chi2_contingency</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">df_audience</span><span class="o">.</span><span class="n">treatment</span><span class="p">,</span>
+                                                       <span class="n">df_audience</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span>
+                                                       <span class="n">values</span><span class="o">=</span><span class="n">df_audience</span><span class="o">.</span><span class="n">user_uuid</span><span class="p">,</span>
+                                                       <span class="n">aggfunc</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">))</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;p-value is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>p-value is 0.14426225571462634
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion"> </a></h3><p>Hashing is very useful technique to assign users to treatment and control in a deterministic way. Using the user_uuid and salt we can get the experiment assignment back. This can also be done easily in any SQL database</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="anaveenan/naveenanarjunan"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/naveenanarjunan/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">My Data Science blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">My Data Science blog</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/anaveenan"><svg class="social svg-icon"><use xlink:href="/naveenanarjunan/assets/minima-social-icons.svg#github"></use></svg> <span class="username">anaveenan</span></a></li><li><a href="https://www.twitter.com/NaveenanA"><svg class="social svg-icon"><use xlink:href="/naveenanarjunan/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">NaveenanA</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
