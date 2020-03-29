@@ -7,8 +7,8 @@
 <meta name="generator" content="Jekyll v3.8.5" />
 <meta property="og:title" content="Audience Splitting in A/B Experiments" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="A tutorial of how to split audience using hashing." />
-<meta property="og:description" content="A tutorial of how to split audience using hashing." />
+<meta name="description" content="A tutorial on how to split audience in a deterministic way using hashing." />
+<meta property="og:description" content="A tutorial on how to split audience in a deterministic way using hashing." />
 <link rel="canonical" href="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html" />
 <meta property="og:url" content="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html" />
 <meta property="og:site_name" content="My Data Science blog" />
@@ -16,7 +16,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-01-15T00:00:00-06:00" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html"},"description":"A tutorial of how to split audience using hashing.","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Audience Splitting in A/B Experiments","dateModified":"2020-01-15T00:00:00-06:00","datePublished":"2020-01-15T00:00:00-06:00","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html"},"description":"A tutorial on how to split audience in a deterministic way using hashing.","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/01/15/audience-hashing.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Audience Splitting in A/B Experiments","dateModified":"2020-01-15T00:00:00-06:00","datePublished":"2020-01-15T00:00:00-06:00","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
@@ -75,7 +75,7 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Audience Splitting in A/B Experiments</h1><p class="page-description">A tutorial of how to split audience using hashing.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-01-15T00:00:00-06:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">Audience Splitting in A/B Experiments</h1><p class="page-description">A tutorial on how to split audience in a deterministic way using hashing.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-01-15T00:00:00-06:00" itemprop="datePublished">
         Jan 15, 2020
       </time>
        • <span class="read-time" title="Estimated read time">
@@ -131,7 +131,7 @@
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>One key element in running a A/B experiment is splitting of audience based on the unit of diversion. Most of the experiment platforms does the splitting of audience for us. But there are situation in which analyst need to run an A/B experiment and splitting of audience need to performed in SQL. Also, we need the audience split to perform post-hoc analysis of the experiment. In this blog, I walk through how to do this in spark and Hive using an example .</p>
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>One key element in running a A/B experiment is splitting of audience based on the unit of diversion. Most of the experiment platforms does the splitting of audience for us. But there are situation in which analyst need to run an A/B experiment and splitting of audience need to performed by the analyst. In most of the organizations data is stored in a database and it would be nice if we can perform treatment assignment in SQL . Also, we need the audience split to perform post-hoc analysis of the experiment. In this blog, I will show how to perform audience splitting in spark and Hive using an example.</p>
 
 </div>
 </div>
@@ -146,7 +146,8 @@
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
 <li>Lets create a spark session in local.   </li>
-<li>Add 100,000 customers with gender information and add uuid column to the dataframe to uniquely identify a user.  </li>
+<li>Lets create a dummy dataset with 100,000 customers along with gender information.  </li>
+<li>Add uuid column to the dataframe to uniquely identify a user.  </li>
 <li>Convert pandas dataframe to a spark dataframe </li>
 <li>Register the spark dataframe as "user_table" to be accessed in Hive</li>
 </ol>
@@ -362,8 +363,8 @@
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
 <li>Select the unit of diversion key : user_uuid in our case (or the ID field we want to split on).  </li>
-<li>And a salt, unique value to identify our experiment.  </li>
-<li>Concatenate car_uuid with salt selected.  </li>
+<li>And a salt('new_widget' in our example), unique value to identify our experiment.  </li>
+<li>Concatenate car_uuid with the salt selected.  </li>
 <li>Apply a hashing algorithm like md5 hash to split audience into treatment and control </li>
 </ol>
 
@@ -424,7 +425,8 @@
  <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;treatment&#39;</span><span class="p">)</span>
  <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">users</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;user_uuid&#39;</span><span class="p">,</span><span class="s1">&#39;count&#39;</span><span class="p">))</span>
  <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
- <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">percent_users</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+ <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">percent_users</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;users&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+ <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">({</span><span class="s1">&#39;percent_users&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="si">{0:.2f}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">})</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -439,45 +441,21 @@
 
 
 <div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>treatment</th>
-      <th>users</th>
-      <th>percent_users</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>control</td>
-      <td>50180</td>
-      <td>0.5018</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>treatment</td>
-      <td>49820</td>
-      <td>0.4982</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<style type="text/css">
+</style><table id="T_8e299cf4_7168_11ea_b918_645aede9f057"><thead>    <tr>        <th class="blank level0"></th>        <th class="col_heading level0 col0">treatment</th>        <th class="col_heading level0 col1">users</th>        <th class="col_heading level0 col2">percent_users</th>    </tr></thead><tbody>
+                <tr>
+                        <th id="T_8e299cf4_7168_11ea_b918_645aede9f057level0_row0" class="row_heading level0 row0">0</th>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row0_col0" class="data row0 col0">control</td>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row0_col1" class="data row0 col1">50180</td>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row0_col2" class="data row0 col2">50.18%</td>
+            </tr>
+            <tr>
+                        <th id="T_8e299cf4_7168_11ea_b918_645aede9f057level0_row1" class="row_heading level0 row1">1</th>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row1_col0" class="data row1 col0">treatment</td>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row1_col1" class="data row1 col1">49820</td>
+                        <td id="T_8e299cf4_7168_11ea_b918_645aede9f057row1_col2" class="data row1 col2">49.82%</td>
+            </tr>
+    </tbody></table>
 </div>
 
 </div>
@@ -490,7 +468,7 @@
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>One way to check this is if assignment of gender is random across treatment and control. This can be translated in to a chi square test with the following hypothesis:</p>
+<p>One way to validate this is see if distribution of gender is random across treatment and control. This can be translated in to a chi square test with the following hypothesis:</p>
 <p><strong>Null Hypothesis H<sub>0</sub></strong>: Gender is independent of treatment assignment<br />
   <strong>Alternate Hypothesis H<sub>a</sub></strong>: Gender is not independent of treatment assignment</p>
 
@@ -499,7 +477,7 @@
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's run an chi-square test. P-value of 0.14 indicates we can't reject the null hypothesis</p>
+<p>Let's run an chi-square test. P-value of 0.14 indicates we can't reject the null hypothesis - gender is independent of the treatment assignment</p>
 
 </div>
 </div>

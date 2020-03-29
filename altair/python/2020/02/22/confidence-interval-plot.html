@@ -7,8 +7,8 @@
 <meta name="generator" content="Jekyll v3.8.5" />
 <meta property="og:title" content="Confidence Interval Plot Python" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="A tutorial of creating confidence interval plot in python." />
-<meta property="og:description" content="A tutorial of creating confidence interval plot in python." />
+<meta name="description" content="A tutorial on how to create confidence interval plot in python." />
+<meta property="og:description" content="A tutorial on how to create confidence interval plot in python." />
 <link rel="canonical" href="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html" />
 <meta property="og:url" content="https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html" />
 <meta property="og:site_name" content="My Data Science blog" />
@@ -16,7 +16,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-02-22T00:00:00-06:00" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html"},"description":"A tutorial of creating confidence interval plot in python.","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Confidence Interval Plot Python","dateModified":"2020-02-22T00:00:00-06:00","datePublished":"2020-02-22T00:00:00-06:00","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html"},"description":"A tutorial on how to create confidence interval plot in python.","@type":"BlogPosting","url":"https://anaveenan.github.io/naveenanarjunan/altair/python/2020/02/22/confidence-interval-plot.html","image":"https://anaveenan.github.io/naveenanarjunan/images/chart-preview.png","headline":"Confidence Interval Plot Python","dateModified":"2020-02-22T00:00:00-06:00","datePublished":"2020-02-22T00:00:00-06:00","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
@@ -75,7 +75,7 @@
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Confidence Interval Plot Python</h1><p class="page-description">A tutorial of creating confidence interval plot in python.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-02-22T00:00:00-06:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">Confidence Interval Plot Python</h1><p class="page-description">A tutorial on how to create confidence interval plot in python.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-02-22T00:00:00-06:00" itemprop="datePublished">
         Feb 22, 2020
       </time>
        • <span class="read-time" title="Estimated read time">
@@ -278,7 +278,7 @@
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Create-a-plot-showing-how-mile-per-gallon-change-by-year">Create a plot showing how mile per gallon change by year<a class="anchor-link" href="#Create-a-plot-showing-how-mile-per-gallon-change-by-year"> </a></h3><p>Altair has built in capabilities to create this visualization</p>
 <ol>
-<li>Lets create a base line cart showing the average mile per gallon per year </li>
+<li>Lets create a base line chart showing the average mile per gallon per year </li>
 <li>Create a confidence interval band chart using the mark_errorband()  </li>
 <li>Layer the line and CI band chart to create the final visualization</li>
 </ol>
@@ -377,7 +377,7 @@
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Lets say if you want to under how mileage varies by origin. This can done by simply encoding color in the plot</p>
+<p>Lets say if you want to understand how mileage varies by origin. This can done by simply encoding color in the plot</p>
 
 </div>
 </div>
@@ -617,18 +617,19 @@
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">line</span> <span class="o">=</span> <span class="p">(</span><span class="n">alt</span>
-        <span class="o">.</span><span class="n">Chart</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">mark_line</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">Chart</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">mark_line</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span>
                 <span class="n">y</span><span class="o">=</span><span class="s1">&#39;avg_mpg&#39;</span><span class="p">))</span>
 
 <span class="n">band</span> <span class="o">=</span> <span class="p">(</span><span class="n">alt</span>
-        <span class="o">.</span><span class="n">Chart</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">Chart</span><span class="p">()</span>
         <span class="o">.</span><span class="n">mark_area</span><span class="p">(</span><span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span>
-                <span class="n">y</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Y</span><span class="p">(</span><span class="s1">&#39;ll&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Miles/Gallon&#39;</span><span class="p">),</span>
-                <span class="n">y2</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Y2</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Miles/Gallon&#39;</span><span class="p">)))</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Y</span><span class="p">(</span><span class="s1">&#39;ll&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Miles/Gallon&#39;</span><span class="p">,</span><span class="n">ticks</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+                <span class="n">y2</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Y2</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">)))</span>
 
-<span class="p">(</span><span class="n">band</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Confidence Interval of miles per gallon by country(Custom)&#39;</span><span class="p">)</span>
+<span class="n">alt</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">band</span> <span class="o">+</span> <span class="n">line</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Confidence Interval of miles per gallon by country(Custom)&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -643,10 +644,10 @@
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
-<div id="altair-viz-ce5b471e33a14cc5941adb2da51e9171"></div>
+<div id="altair-viz-add11e64f66941c8af9da435e5c74ce8"></div>
 <script type="text/javascript">
   (function(spec, embedOpt){
-    const outputDiv = document.getElementById("altair-viz-ce5b471e33a14cc5941adb2da51e9171");
+    const outputDiv = document.getElementById("altair-viz-add11e64f66941c8af9da435e5c74ce8");
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
       "vega-lib": "https://cdn.jsdelivr.net/npm//vega-lib?noext",
@@ -687,7 +688,7 @@
         .catch(showError)
         .then(() => displayChart(vegaEmbed));
     }
-  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "layer": [{"mark": {"type": "area", "color": "blue", "opacity": 0.5}, "encoding": {"x": {"type": "temporal", "field": "Year"}, "y": {"type": "quantitative", "field": "ll", "title": "Miles/Gallon"}, "y2": {"field": "ul", "title": "Miles/Gallon"}}}, {"mark": {"type": "line", "color": "blue"}, "encoding": {"x": {"type": "temporal", "field": "Year"}, "y": {"type": "quantitative", "field": "avg_mpg"}}}], "data": {"name": "data-592ad8439936ce87ed5d038e5a235635"}, "title": "Confidence Interval of miles per gallon by country(Custom)", "$schema": "https://vega.github.io/schema/vega-lite/v4.0.2.json", "datasets": {"data-592ad8439936ce87ed5d038e5a235635": [{"Year": "1970-01-01T00:00:00", "avg_mpg": 17.689655172413794, "std_mpg": 5.33923113964563, "n": 29, "ul": 19.6329370232944, "ll": 15.746373321533188}, {"Year": "1971-01-01T00:00:00", "avg_mpg": 21.25, "std_mpg": 6.591942331642754, "n": 28, "ul": 23.691689609296837, "ll": 18.808310390703163}, {"Year": "1972-01-01T00:00:00", "avg_mpg": 18.714285714285715, "std_mpg": 5.435528819257013, "n": 28, "ul": 20.72763376426872, "ll": 16.70093766430271}, {"Year": "1973-01-01T00:00:00", "avg_mpg": 17.1, "std_mpg": 4.700245492770318, "n": 40, "ul": 18.55662116927128, "ll": 15.643378830728722}, {"Year": "1974-01-01T00:00:00", "avg_mpg": 22.703703703703702, "std_mpg": 6.420009674176839, "n": 27, "ul": 25.125345321913223, "ll": 20.282062085494182}, {"Year": "1975-01-01T00:00:00", "avg_mpg": 20.266666666666666, "std_mpg": 4.940566303805551, "n": 30, "ul": 22.034625612810224, "ll": 18.498707720523107}, {"Year": "1976-01-01T00:00:00", "avg_mpg": 21.573529411764707, "std_mpg": 5.8892973714537264, "n": 34, "ul": 23.553141498472815, "ll": 19.593917325056598}, {"Year": "1977-01-01T00:00:00", "avg_mpg": 23.375, "std_mpg": 6.675861714387859, "n": 28, "ul": 25.84777378366586, "ll": 20.90222621633414}, {"Year": "1978-01-01T00:00:00", "avg_mpg": 24.061111111111114, "std_mpg": 6.89804435133726, "n": 36, "ul": 26.314472265881285, "ll": 21.807749956340942}, {"Year": "1979-01-01T00:00:00", "avg_mpg": 25.09310344827585, "std_mpg": 6.794216607552694, "n": 29, "ul": 27.565945975427624, "ll": 22.62026092112408}, {"Year": "1980-01-01T00:00:00", "avg_mpg": 33.696551724137926, "std_mpg": 7.037982805495005, "n": 29, "ul": 36.258116094553245, "ll": 31.13498735372261}, {"Year": "1982-01-01T00:00:00", "avg_mpg": 31.045, "std_mpg": 5.486699634694424, "n": 60, "ul": 32.43332655897317, "ll": 29.656673441026832}]}}, {"mode": "vega-lite"});
+  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "layer": [{"layer": [{"mark": {"type": "area", "color": "blue", "opacity": 0.5}, "encoding": {"x": {"type": "temporal", "field": "Year"}, "y": {"type": "quantitative", "axis": {"ticks": false, "title": "Miles/Gallon"}, "field": "ll"}, "y2": {"field": "ul"}}}, {"mark": {"type": "line", "color": "blue"}, "encoding": {"x": {"type": "temporal", "field": "Year"}, "y": {"type": "quantitative", "field": "avg_mpg"}}}]}], "data": {"name": "data-592ad8439936ce87ed5d038e5a235635"}, "title": "Confidence Interval of miles per gallon by country(Custom)", "$schema": "https://vega.github.io/schema/vega-lite/v4.0.2.json", "datasets": {"data-592ad8439936ce87ed5d038e5a235635": [{"Year": "1970-01-01T00:00:00", "avg_mpg": 17.689655172413794, "std_mpg": 5.33923113964563, "n": 29, "ul": 19.6329370232944, "ll": 15.746373321533188}, {"Year": "1971-01-01T00:00:00", "avg_mpg": 21.25, "std_mpg": 6.591942331642754, "n": 28, "ul": 23.691689609296837, "ll": 18.808310390703163}, {"Year": "1972-01-01T00:00:00", "avg_mpg": 18.714285714285715, "std_mpg": 5.435528819257013, "n": 28, "ul": 20.72763376426872, "ll": 16.70093766430271}, {"Year": "1973-01-01T00:00:00", "avg_mpg": 17.1, "std_mpg": 4.700245492770318, "n": 40, "ul": 18.55662116927128, "ll": 15.643378830728722}, {"Year": "1974-01-01T00:00:00", "avg_mpg": 22.703703703703702, "std_mpg": 6.420009674176839, "n": 27, "ul": 25.125345321913223, "ll": 20.282062085494182}, {"Year": "1975-01-01T00:00:00", "avg_mpg": 20.266666666666666, "std_mpg": 4.940566303805551, "n": 30, "ul": 22.034625612810224, "ll": 18.498707720523107}, {"Year": "1976-01-01T00:00:00", "avg_mpg": 21.573529411764707, "std_mpg": 5.8892973714537264, "n": 34, "ul": 23.553141498472815, "ll": 19.593917325056598}, {"Year": "1977-01-01T00:00:00", "avg_mpg": 23.375, "std_mpg": 6.675861714387859, "n": 28, "ul": 25.84777378366586, "ll": 20.90222621633414}, {"Year": "1978-01-01T00:00:00", "avg_mpg": 24.061111111111114, "std_mpg": 6.89804435133726, "n": 36, "ul": 26.314472265881285, "ll": 21.807749956340942}, {"Year": "1979-01-01T00:00:00", "avg_mpg": 25.09310344827585, "std_mpg": 6.794216607552694, "n": 29, "ul": 27.565945975427624, "ll": 22.62026092112408}, {"Year": "1980-01-01T00:00:00", "avg_mpg": 33.696551724137926, "std_mpg": 7.037982805495005, "n": 29, "ul": 36.258116094553245, "ll": 31.13498735372261}, {"Year": "1982-01-01T00:00:00", "avg_mpg": 31.045, "std_mpg": 5.486699634694424, "n": 60, "ul": 32.43332655897317, "ll": 29.656673441026832}]}}, {"mode": "vega-lite"});
 </script>
 </div>
 
