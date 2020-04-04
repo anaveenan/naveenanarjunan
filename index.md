@@ -14,6 +14,6 @@ This blog is a collection of useful tips and tricks for data scientist
 
 This site is built with [fastpages](https://github.com/fastai/fastpages), An easy to use blogging platform with extra features for Jupyter Notebooks. 
 
-You can edit the `index.md` file to change this content.
+
 
 # Posts
