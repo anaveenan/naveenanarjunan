@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FROM python:3-slim-stretch
 
 RUN pip install --upgrade pip
@@ -7,10 +8,17 @@ RUN dpkg -i pandoc-2.9.1.1-1-amd64.deb
 RUN pip install jupyter watchdog[watchmedo] jupyter_client ipykernel jupyter
 RUN python3 -m ipykernel install --user
 RUN pip install nbdev
+=======
+FROM hamelsmu/fastpages-nbdev
+>>>>>>> template/master
 
 WORKDIR /fastpages
 COPY . .
 RUN chmod u+x action_entrypoint.sh
 RUN chmod u+x word2post.sh
+<<<<<<< HEAD
+=======
+RUN dos2unix /fastpages/*.sh
+>>>>>>> template/master
 
 CMD [ "/fastpages/action_entrypoint.sh" ]

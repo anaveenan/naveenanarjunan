@@ -46,4 +46,7 @@ if [[ "$INPUT_BOOL_SAVE_MARKDOWN" == "true" ]];then
 fi
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> template/master
